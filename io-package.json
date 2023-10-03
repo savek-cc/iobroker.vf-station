@@ -81,8 +81,9 @@
         ]
     },
     "native": {
-        "option1": true,
-        "option2": "42"
+        "ip": "192.168.100.1",
+        "password": "admin",
+        "refresh": 60
     },
     "objects": [],
     "instanceObjects": []
