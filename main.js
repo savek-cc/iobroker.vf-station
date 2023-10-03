@@ -61,7 +61,46 @@ async function fetchData(){
             }
         }
     }
+
+    async function storeDocsis(docsisData, prefix) {
+        if (docsisData && docsisData.data) {
+            for (const key of Object.keys(docsisData.data)) {
+                const stateId = `${prefix}.${key}`;
+                let value = docsisData.data[key];
+                value.forEach(dataObj => {
+                    const channelId = `${stateId}.${dataObj.__id}`;
+                    // Create the channel first
+                    this.setObjectNotExists(channelId, {
+                        type: 'channel',
+                        common: {
+                            name: `Channel ${dataObj.__id}`
+                        },
+                        native: {}
+                    }, () => {
+                        // Once channel is created or confirmed to exist, create the states
+                        for (let [key, value] of Object.entries(dataObj)) {
+                            if (key !== '__id') { // We don't need to create a state for __id since it's used as the channel ID
+                                this.setObjectNotExists(`${channelId}.${key}`, {
+                                    type: 'state',
+                                    common: {
+                                        name: key,
+                                        type: 'mixed', // This could be more specific like 'string', 'number', etc. based on the property type
+                                        role: 'value' // Depending on the kind of data, this might be more specific like 'indicator', 'sensor', etc.
+                                    },
+                                    native: {}
+                                }, () => {
+                                    // Set the state value once the state is created or confirmed to exist
+                                    this.setState(`${channelId}.${key}`, { val: value, ack: true });
+                                });
+                            }
+                        }
+                    });
+                });
+            }
+        }
+    }
     const storeDataBound = storeData.bind(this);
+    const storeDocsisBound = storeDocsis.bind(this);
     try {
         this.log.debug(`Performing login to vodafone station at ip ${this.config.ip} and retrieving data.`);
         await this.station.login(`http://${this.config.ip}`, this.config.password);
@@ -72,7 +111,7 @@ async function fetchData(){
         this.log.debug('fetching docsis status');
         const docsisData = await this.station.getDocsisStatus();
         this.log.debug('storing docsis status');
-        storeDataBound(docsisData, 'docsis');
+        storeDocsisBound(docsisData, 'docsis');
     } catch (err) {
         this.log.error(`Failed fetching data: ${err.toString()}`);
     }
