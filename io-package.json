@@ -1,0 +1,89 @@
+{
+    "common": {
+        "name": "vf-station",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "uk": "Початкова версія",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Vodafone Station",
+        "titleLang": {
+            "en": "Vodafone Station",
+            "de": "Vodafone-Station",
+            "ru": "Станция Водафон",
+            "pt": "Estação Vodafone",
+            "nl": "Vodafonestation",
+            "fr": "Gare Vodafone",
+            "it": "Stazione Vodafone",
+            "es": "Estación Vodafone",
+            "pl": "Stacja Vodafone",
+            "uk": "Станція Vodafone",
+            "zh-cn": "沃达丰站"
+        },
+        "desc": {
+            "en": "Read status data from a vodafone station in configurable intervals.",
+            "de": "Lesen Sie Statusdaten von einer Vodafone-Station in konfigurierbaren Intervallen.",
+            "ru": "Чтение данных о состоянии со станции Vodafone через настраиваемые интервалы времени.",
+            "pt": "Leia os dados de estado de uma estação Vodafone em intervalos configuráveis.",
+            "nl": "Lees statusgegevens van een Vodafone-station in configureerbare intervallen.",
+            "fr": "Lisez les données d'état d'une station Vodafone à intervalles configurables.",
+            "it": "Leggi i dati di stato da una stazione vodafone a intervalli configurabili.",
+            "es": "Leer datos de estado de una estación vodafone en intervalos configurables.",
+            "pl": "Odczytuj dane o stanie ze stacji Vodafone w konfigurowalnych odstępach czasu.",
+            "uk": "Зчитування даних про стан із станції Vodafone через настроювані інтервали.",
+            "zh-cn": "以可配置的时间间隔从沃达丰站点读取状态数据。"
+        },
+        "authors": [
+            "Savek <savek-iobroker@easycrypt.de>"
+        ],
+        "keywords": [
+            "vodafone",
+            "station",
+            "status",
+            "router"
+        ],
+        "license": "GPL-3.0",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "vf-station.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/savek-cc/ioBroker.vf-station/main/admin/vf-station.png",
+        "readme": "https://github.com/savek-cc/ioBroker.vf-station/blob/main/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "infrastructure",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "json"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=3.3.22"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=5.1.13"
+            }
+        ]
+    },
+    "native": {
+        "option1": true,
+        "option2": "42"
+    },
+    "objects": [],
+    "instanceObjects": []
+}

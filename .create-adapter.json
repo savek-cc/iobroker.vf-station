@@ -1,0 +1,45 @@
+{
+    "cli": true,
+    "target": "directory",
+    "adapterName": "vf-station",
+    "title": "Vodafone Station",
+    "description": "Read status data from a vodafone station in configurable intervals.",
+    "keywords": [
+        "vodafone",
+        "station",
+        "status",
+        "router"
+    ],
+    "expert": "no",
+    "features": [
+        "adapter"
+    ],
+    "adminFeatures": [],
+    "type": "infrastructure",
+    "startMode": "daemon",
+    "connectionType": "local",
+    "dataSource": "poll",
+    "connectionIndicator": "no",
+    "language": "JavaScript",
+    "nodeVersion": "16",
+    "adminUi": "json",
+    "tools": [
+        "ESLint",
+        "type checking"
+    ],
+    "releaseScript": "yes",
+    "devServer": "yes",
+    "devServerPort": 8081,
+    "indentation": "Space (4)",
+    "quotes": "single",
+    "es6class": "yes",
+    "authorName": "Savek",
+    "authorGithub": "savek-cc",
+    "authorEmail": "savek-iobroker@easycrypt.de",
+    "gitRemoteProtocol": "HTTPS",
+    "gitCommit": "no",
+    "defaultBranch": "main",
+    "license": "GNU GPLv3",
+    "dependabot": "yes",
+    "creatorVersion": "2.5.0"
+}
