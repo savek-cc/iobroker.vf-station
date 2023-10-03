@@ -2,14 +2,21 @@
     "i18n": true,
     "type": "panel",
     "items": {
-        "option1": {
-            "type": "checkbox",
-            "label": "option1",
+        "ip": {
+            "type": "text",
+            "label": "IP of your Vodafone Station",
             "newLine": true
         },
-        "option2": {
-            "type": "text",
-            "label": "option2",
+        "password": {
+            "type": "password",
+            "label": "Admin password",
+            "visible": true,
+            "newLine": true
+        },
+        "refresh": {
+            "type": "number",
+            "min": 60,
+            "label": "Refresh interval in seconds",
             "newLine": true
         }
     }
