@@ -29,76 +29,97 @@ role: string; read: boolean; write: boolean; }; native: {}; }) => void; setState
  * @this {any}
  */
 async function fetchData(){
+    function parseValue(str) {
+        const match = str.match(/^([+-]?\d+(\.\d+)?)\s?([a-zA-Z]*)$/);
+        if (!match) return null;
+
+        return {
+            number: parseFloat(match[1]),
+            unit: match[3] || null
+        };
+    }
+
+    function createObject(key, value) {
+        const parsed = parseValue(value);
+        const isNumberType = parsed && (typeof parsed.number === 'number');
+
+        const commonAttributes = {
+            name: key,
+            type: isNumberType ? 'number' : 'mixed',
+            role: 'value',
+            read: true,
+            write: false
+        };
+
+        if (isNumberType && parsed.unit) {
+            commonAttributes.unit = parsed.unit;
+        }
+
+        return {
+            type: 'state',
+            common: commonAttributes,
+            native: {}
+        };
+    }
+
     /**
      * @param {{ data: { [x: string]: any; }; }} statusData
      * @param {string} prefix
      */
     async function storeData(statusData, prefix) {
-        if (statusData && statusData.data) {
-            for (const key of Object.keys(statusData.data)) {
-                const stateId = `${prefix}.${key}`;
-                // Get the value and check if it's an array
-                let value = statusData.data[key];
-                if (Array.isArray(value)) {
-                    value = JSON.stringify(value);
-                }
-                // Ensure the state's object exists
-                if (!(await this.getObjectAsync(stateId))) {
-                    await this.setObjectNotExistsAsync(stateId, {
-                        type: 'state',
-                        common: {
-                            name: key,
-                            type: 'mixed', // This may vary depending on the data type you expect.
-                            role: 'value',
-                            read: true,
-                            write: false,
-                        },
-                        native: {}
-                    });
-                }
-                // Now set the state's value
-                await this.setStateAsync(stateId, {val: value, ack: true});
+        if (!statusData || !statusData.data) return;
+
+        for (const [key, rawValue] of Object.entries(statusData.data)) {
+            const stateId = `${prefix}.${key}`;
+            const value = Array.isArray(rawValue) ? JSON.stringify(rawValue) : rawValue;
+
+            if (!(await this.getObjectAsync(stateId))) {
+                const obj = createObject(key, value);
+                await this.setObjectNotExistsAsync(stateId, obj);
             }
+
+            const parsed = parseValue(value);
+            const stateValue = parsed && typeof parsed.number === 'number' ? parsed.number : value;
+            await this.setStateAsync(stateId, {val: stateValue, ack: true});
         }
     }
-
     async function storeDocsis(docsisData, prefix) {
         if (docsisData && docsisData.data) {
             for (const key of Object.keys(docsisData.data)) {
                 const stateId = `${prefix}.${key}`;
-                let value = docsisData.data[key];
-                value.forEach(dataObj => {
+                const valueArray = docsisData.data[key];
+
+                for (const dataObj of valueArray) {
                     const channelId = `${stateId}.${dataObj.__id}`;
+
                     // Create the channel first
-                    this.setObjectNotExists(channelId, {
-                        type: 'channel',
-                        common: {
-                            name: `Channel ${dataObj.__id}`
-                        },
-                        native: {}
-                    }, () => {
-                        // Once channel is created or confirmed to exist, create the states
-                        for (let [key, value] of Object.entries(dataObj)) {
-                            if (key !== '__id') { // We don't need to create a state for __id since it's used as the channel ID
-                                this.setObjectNotExists(`${channelId}.${key}`, {
-                                    type: 'state',
-                                    common: {
-                                        name: key,
-                                        type: 'mixed', // This could be more specific like 'string', 'number', etc. based on the property type
-                                        role: 'value' // Depending on the kind of data, this might be more specific like 'indicator', 'sensor', etc.
-                                    },
-                                    native: {}
-                                }, () => {
-                                    // Set the state value once the state is created or confirmed to exist
-                                    this.setState(`${channelId}.${key}`, { val: value, ack: true });
-                                });
+                    const channelExists = await this.getObjectAsync(channelId);
+                    if (!channelExists) {
+                        await this.setObjectNotExistsAsync(channelId, { type: 'channel', common: { name: `Channel ${dataObj.__id}` }, native: {}});
+                    }
+
+                    // Once the channel is created or confirmed to exist, create the states
+                    for (const [stateKey, stateValue] of Object.entries(dataObj)) {
+                        if (stateKey !== '__id') { // We don't need to create a state for __id since it's used as the channel ID
+                            const objectPath = `${channelId}.${stateKey}`;
+                            const obj = createObject(stateKey, stateValue);
+
+                            const stateObjectExists = await this.getObjectAsync(objectPath);
+                            if (!stateObjectExists) {
+                                await this.setObjectNotExistsAsync(objectPath, obj);
                             }
+
+                            // Parse the value and determine if it should be stored as a number or as its original type
+                            const parsed = parseValue(stateValue);
+                            const finalStateValue = parsed && typeof parsed.number === 'number' ? parsed.number : stateValue;
+                            await this.setStateAsync(objectPath, { val: finalStateValue, ack: true });
                         }
-                    });
-                });
+                    }
+                }
             }
         }
     }
+
     const storeDataBound = storeData.bind(this);
     const storeDocsisBound = storeDocsis.bind(this);
     try {
